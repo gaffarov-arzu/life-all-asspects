@@ -118,20 +118,33 @@
             box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
         }
 
-        .bucket-fill {
+        .bucket-drops-container {
             position: absolute;
             bottom: 0;
-            width: 100%;
-            transition: height 0.8s ease;
-            border-radius: 0 0 22px 22px;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-end;
+            padding: 8px;
+            gap: 3px;
+            transition: all 0.5s ease;
         }
 
-        .light-fill {
-            background: rgba(255,255,255,0.9);
+        .drop-in-bucket {
+            width: 14px;
+            height: 14px;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            animation: dropPop 0.3s ease-out;
         }
 
-        .dark-fill {
-            background: rgba(0,0,0,0.9);
+        @keyframes dropPop {
+            0% { transform: rotate(-45deg) scale(0); opacity: 0; }
+            50% { transform: rotate(-45deg) scale(1.2); }
+            100% { transform: rotate(-45deg) scale(1); opacity: 1; }
         }
 
         .bucket-percentage {
@@ -351,16 +364,6 @@
             font-size: 11px;
             opacity: 0.7;
             margin-top: 3px;
-        }
-
-        .master-bucket-modal .bucket-visual {
-            width: 300px;
-            height: 400px;
-            margin: 30px auto;
-            border: 5px solid;
-            border-image: linear-gradient(135deg, 
-                #FF8C42, #2ECC71, #9B59B6, #95D904, 
-                #FF6B9D, #6C7A89, #87CEEB, #00A8E8) 1;
         }
 
         .master-stats {
@@ -728,16 +731,12 @@
                 <!-- Kovanın İçi Görünüşü -->
                 <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 20px; margin-bottom: 25px;">
                     <h3 style="text-align: center; margin-bottom: 20px; font-size: 20px;">
-                        🪣 Kovanın İçindəki Əməllər
+                        🪣 Kovanın İçindəki Damlar
                     </h3>
                     
                     <div class="bucket-visual" id="modalBucketVisual" style="width: 200px; height: 280px; margin: 0 auto 20px; border: 3px solid; position: relative; cursor: pointer;">
-                        <div class="bucket-fill dark-fill" id="modalDarkFill" style="height: 0%"></div>
-                        <div class="bucket-fill light-fill" id="modalLightFill" style="height: 0%; bottom: 0%"></div>
+                        <div class="bucket-drops-container" id="modalDropsContainer"></div>
                         <div class="bucket-percentage" id="modalPercentage">0%</div>
-                        
-                        <!-- Kova içində əməl damlalarını göstər -->
-                        <div id="bucketDropsList" style="position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px; overflow-y: auto; z-index: 5; font-size: 10px; line-height: 1.3;"></div>
                     </div>
                     
                     <div style="text-align: center; font-size: 12px; opacity: 0.7; margin-top: 10px;">
@@ -792,19 +791,16 @@
 
             <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 20px; margin-bottom: 25px;">
                 <h3 style="text-align: center; margin-bottom: 20px; font-size: 20px;">
-                    🪣 Ümumi Kovanın İçi
+                    🪣 Ümumi Kovanın İçindəki Damlar
                 </h3>
                 
                 <div class="bucket-visual" id="masterBucketVisual" style="width: 300px; height: 400px; margin: 0 auto; border: 5px solid; border-image: linear-gradient(135deg, #FF8C42, #2ECC71, #9B59B6, #95D904, #FF6B9D, #6C7A89, #87CEEB, #00A8E8) 1; cursor: pointer;">
-                    <div class="bucket-fill" id="masterBucketFill"></div>
+                    <div class="bucket-drops-container" id="masterDropsContainer"></div>
                     <div class="bucket-percentage" id="masterPercentage">0%</div>
-                    
-                    <!-- Ümumi kovada son əməllər -->
-                    <div id="masterBucketDropsList" style="position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px; overflow-y: auto; z-index: 5; font-size: 11px; line-height: 1.4;"></div>
                 </div>
                 
                 <div style="text-align: center; font-size: 12px; opacity: 0.7; margin-top: 10px;">
-                    Kovaya klik edərək bütün əməllərə baxın
+                    Kovaya klik edərək bütün damlalara baxın
                 </div>
             </div>
 
@@ -1025,14 +1021,47 @@
             renderBuckets();
         }
 
+        // CREATE GRADIENT DROP - area color mixed with white (light) or black (dark)
+        function createGradientDrop(areaColor, type) {
+            const drop = document.createElement('div');
+            drop.className = 'drop-in-bucket';
+            
+            if (type === 'light') {
+                // Gradient: area color to white
+                drop.style.background = `linear-gradient(135deg, ${areaColor} 0%, #ffffff 100%)`;
+            } else {
+                // Gradient: area color to black
+                drop.style.background = `linear-gradient(135deg, ${areaColor} 0%, #000000 100%)`;
+            }
+            
+            return drop;
+        }
+
+        // RENDER DROPS IN BUCKET
+        function renderBucketDrops(container, area) {
+            container.innerHTML = '';
+            
+            // Calculate how many drops to show (1 drop per 0.5%)
+            const lightDrops = Math.floor(area.lightLevel * 2);
+            const darkDrops = Math.floor(area.darkLevel * 2);
+            
+            // Add dark drops first (bottom)
+            for (let i = 0; i < darkDrops; i++) {
+                container.appendChild(createGradientDrop(area.color, 'dark'));
+            }
+            
+            // Add light drops on top
+            for (let i = 0; i < lightDrops; i++) {
+                container.appendChild(createGradientDrop(area.color, 'light'));
+            }
+        }
+
         function renderBuckets() {
             const grid = document.getElementById('bucketsGrid');
             grid.innerHTML = '';
 
             areasData.forEach(area => {
                 const totalLevel = area.lightLevel + area.darkLevel;
-                const lightPercent = totalLevel > 0 ? (area.lightLevel / totalLevel) * 100 : 50;
-                const darkPercent = totalLevel > 0 ? (area.darkLevel / totalLevel) * 100 : 50;
 
                 const bucketDiv = document.createElement('div');
                 bucketDiv.className = 'bucket-container';
@@ -1052,8 +1081,7 @@
                     </div>
 
                     <div class="bucket-visual" style="border: 3px solid ${area.color}">
-                        <div class="bucket-fill dark-fill" style="height: ${area.darkLevel}%"></div>
-                        <div class="bucket-fill light-fill" style="height: ${area.lightLevel}%; bottom: ${area.darkLevel}%"></div>
+                        <div class="bucket-drops-container" data-area="${area.name}"></div>
                         <div class="bucket-percentage">${totalLevel.toFixed(1)}%</div>
                     </div>
 
@@ -1079,6 +1107,10 @@
                 `;
 
                 grid.appendChild(bucketDiv);
+                
+                // Render drops after adding to DOM
+                const dropsContainer = bucketDiv.querySelector('.bucket-drops-container');
+                renderBucketDrops(dropsContainer, area);
             });
         }
 
@@ -1100,38 +1132,20 @@
 
         function updateModalBucket(area) {
             const modalBucket = document.getElementById('modalBucketVisual');
-            const modalDarkFill = document.getElementById('modalDarkFill');
-            const modalLightFill = document.getElementById('modalLightFill');
+            const modalDropsContainer = document.getElementById('modalDropsContainer');
             const modalPercentage = document.getElementById('modalPercentage');
-            const bucketDropsList = document.getElementById('bucketDropsList');
 
-            if (!modalBucket || !modalDarkFill || !modalLightFill || !modalPercentage) {
+            if (!modalBucket || !modalDropsContainer || !modalPercentage) {
                 return;
             }
 
             modalBucket.style.borderColor = area.color;
-            modalDarkFill.style.height = area.darkLevel + '%';
-            modalLightFill.style.height = area.lightLevel + '%';
-            modalLightFill.style.bottom = area.darkLevel + '%';
             
             const totalLevel = area.lightLevel + area.darkLevel;
             modalPercentage.textContent = totalLevel.toFixed(1) + '%';
 
-            if (bucketDropsList && area.history.length > 0) {
-                const recentActions = area.history.slice(-5).reverse();
-                bucketDropsList.innerHTML = recentActions.map(item => `
-                    <div style="background: ${item.type === 'light' ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)'}; 
-                                color: ${item.type === 'light' ? '#000' : '#fff'}; 
-                                padding: 3px 5px; 
-                                margin: 2px 0; 
-                                border-radius: 5px;
-                                font-weight: bold;">
-                        ${item.type === 'light' ? '☀️' : '🌙'} ${item.action.substring(0, 15)}${item.action.length > 15 ? '...' : ''}
-                    </div>
-                `).join('');
-            } else if (bucketDropsList) {
-                bucketDropsList.innerHTML = '<div style="text-align: center; padding: 20px; opacity: 0.5; color: white;">Hələ əməl yoxdur</div>';
-            }
+            // Render drops in modal bucket
+            renderBucketDrops(modalDropsContainer, area);
 
             modalBucket.onclick = () => showBucketDetails(area);
         }
@@ -1152,10 +1166,18 @@
             let detailsHTML = `<div style="max-height: 300px; overflow-y: auto;">`;
             
             sortedHistory.forEach((item, index) => {
+                const gradientColor = item.type === 'light' 
+                    ? `linear-gradient(135deg, ${area.color} 0%, #ffffff 100%)`
+                    : `linear-gradient(135deg, ${area.color} 0%, #000000 100%)`;
+                
                 detailsHTML += `
                     <div style="background: ${item.type === 'light' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.3)'}; 
-                                padding: 10px; margin: 5px 0; border-radius: 8px; border-left: 3px solid ${item.type === 'light' ? '#fff' : '#000'};">
-                        <strong>${index + 1}. ${item.type === 'light' ? '☀️' : '🌙'} ${item.action}</strong><br>
+                                padding: 10px; margin: 5px 0; border-radius: 8px; 
+                                border-left: 4px solid; border-image: ${gradientColor} 1;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 12px; height: 12px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: ${gradientColor};"></div>
+                            <strong>${index + 1}. ${item.action}</strong>
+                        </div>
                         <span style="opacity: 0.8; font-size: 13px;">+${item.amount}% - ${item.date}</span>
                         ${item.note ? `<br><span style="opacity: 0.7; font-size: 12px;">💬 ${item.note}</span>` : ''}
                     </div>
@@ -1190,11 +1212,16 @@
             let detailsHTML = `<div style="max-height: 400px; overflow-y: auto;">`;
             
             sortedHistory.forEach((item, index) => {
+                const gradientColor = item.type === 'light' 
+                    ? `linear-gradient(135deg, ${item.color} 0%, #ffffff 100%)`
+                    : `linear-gradient(135deg, ${item.color} 0%, #000000 100%)`;
+                
                 detailsHTML += `
                     <div style="background: ${item.type === 'light' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.3)'}; 
-                                padding: 10px; margin: 5px 0; border-radius: 8px; border-left: 4px solid ${item.color};">
+                                padding: 10px; margin: 5px 0; border-radius: 8px; 
+                                border-left: 4px solid; border-image: ${gradientColor} 1;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
-                            <span style="font-size: 18px;">${item.type === 'light' ? '☀️' : '🌙'}</span>
+                            <div style="width: 14px; height: 14px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: ${gradientColor};"></div>
                             <span style="color: ${item.color}; font-weight: bold; font-size: 11px; padding: 2px 8px; background: rgba(0,0,0,0.3); border-radius: 10px;">${item.area}</span>
                         </div>
                         <strong style="font-size: 14px;">${index + 1}. ${item.action}</strong><br>
@@ -1220,7 +1247,6 @@
             const container = document.getElementById(`${type}Actions`);
             
             if (!container) {
-                console.error(`❌ Container ${type}Actions not found`);
                 return;
             }
             
@@ -1496,11 +1522,11 @@
                 drop.style.pointerEvents = 'none';
                 
                 if (type === 'light') {
-                    drop.style.backgroundColor = '#ffffff';
-                    drop.style.boxShadow = '0 0 15px #ffffff, 0 0 30px #ffffff';
+                    drop.style.background = `linear-gradient(135deg, ${color} 0%, #ffffff 100%)`;
+                    drop.style.boxShadow = `0 0 15px ${color}`;
                 } else {
-                    drop.style.backgroundColor = '#000000';
-                    drop.style.boxShadow = '0 0 15px #000000, 0 0 30px rgba(0,0,0,0.8)';
+                    drop.style.background = `linear-gradient(135deg, ${color} 0%, #000000 100%)`;
+                    drop.style.boxShadow = `0 0 15px ${color}`;
                 }
                 
                 drop.style.opacity = '1';
@@ -1540,11 +1566,11 @@
                 modalDrop.style.pointerEvents = 'none';
                 
                 if (type === 'light') {
-                    modalDrop.style.backgroundColor = '#ffffff';
-                    modalDrop.style.boxShadow = '0 0 10px #ffffff';
+                    modalDrop.style.background = `linear-gradient(135deg, ${color} 0%, #ffffff 100%)`;
+                    modalDrop.style.boxShadow = `0 0 10px ${color}`;
                 } else {
-                    modalDrop.style.backgroundColor = '#000000';
-                    modalDrop.style.boxShadow = '0 0 10px #000000';
+                    modalDrop.style.background = `linear-gradient(135deg, ${color} 0%, #000000 100%)`;
+                    modalDrop.style.boxShadow = `0 0 10px ${color}`;
                 }
                 
                 modalDrop.style.opacity = '1';
@@ -1624,11 +1650,18 @@
             const avgDark = totalDark / areasData.length;
             const totalAvg = avgLight + avgDark;
 
-            const masterFill = document.getElementById('masterBucketFill');
-            masterFill.innerHTML = `
-                <div class="dark-fill" style="height: ${(avgDark / totalAvg * 100) || 0}%; position: absolute; bottom: 0; width: 100%;"></div>
-                <div class="light-fill" style="height: ${(avgLight / totalAvg * 100) || 0}%; position: absolute; bottom: ${(avgDark / totalAvg * 100) || 0}%; width: 100%;"></div>
-            `;
+            // Render drops in master bucket
+            const masterDropsContainer = document.getElementById('masterDropsContainer');
+            if (masterDropsContainer) {
+                masterDropsContainer.innerHTML = '';
+                
+                // Sort history by timestamp and render drops
+                const sortedHistory = allHistory.sort((a, b) => a.timestamp - b.timestamp);
+                sortedHistory.forEach(item => {
+                    const drop = createGradientDrop(item.color, item.type);
+                    masterDropsContainer.appendChild(drop);
+                });
+            }
 
             document.getElementById('masterPercentage').textContent = totalAvg.toFixed(1) + '%';
             document.getElementById('totalLight').textContent = avgLight.toFixed(1) + '%';
@@ -1638,34 +1671,6 @@
             const darkCount = allHistory.filter(h => h.type === 'dark').length;
             document.getElementById('lightCount').textContent = lightCount + ' əməl';
             document.getElementById('darkCount').textContent = darkCount + ' əməl';
-
-            // Ümumi kovada son əməlləri göstər
-            const masterDropsList = document.getElementById('masterBucketDropsList');
-            if (masterDropsList) {
-                if (allHistory.length > 0) {
-                    const sortedHistory = allHistory.sort((a, b) => b.timestamp - a.timestamp);
-                    const recentActions = sortedHistory.slice(0, 8); // Son 8 əməl
-                    
-                    masterDropsList.innerHTML = recentActions.map(item => `
-                        <div style="background: ${item.type === 'light' ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)'}; 
-                                    color: ${item.type === 'light' ? '#000' : '#fff'}; 
-                                    padding: 4px 6px; 
-                                    margin: 3px 0; 
-                                    border-radius: 6px;
-                                    font-weight: bold;
-                                    border-left: 3px solid ${item.color};">
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <span>${item.type === 'light' ? '☀️' : '🌙'}</span>
-                                <span style="color: ${item.color}; font-size: 9px;">[${item.area}]</span>
-                            </div>
-                            <div style="margin-top: 2px;">${item.action.substring(0, 20)}${item.action.length > 20 ? '...' : ''}</div>
-                            <div style="font-size: 9px; opacity: 0.7; margin-top: 2px;">+${item.amount}%</div>
-                        </div>
-                    `).join('');
-                } else {
-                    masterDropsList.innerHTML = '<div style="text-align: center; padding: 30px; opacity: 0.5; color: white;">Hələ heç bir əməl yoxdur</div>';
-                }
-            }
 
             // Kovaya klik - tam siyahı göstər
             const masterBucket = document.getElementById('masterBucketVisual');
@@ -1695,8 +1700,8 @@
                     </div>
                     <div class="area-bar-visual" style="border: 2px solid ${area.color}">
                         <div class="area-bar-fill">
-                            <div class="dark-fill" style="width: ${darkPercent}%"></div>
-                            <div class="light-fill" style="width: ${lightPercent}%"></div>
+                            <div style="width: ${darkPercent}%; background: linear-gradient(135deg, ${area.color} 0%, #000000 100%);"></div>
+                            <div style="width: ${lightPercent}%; background: linear-gradient(135deg, ${area.color} 0%, #ffffff 100%);"></div>
                         </div>
                     </div>
                 `;
