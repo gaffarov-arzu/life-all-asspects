@@ -812,24 +812,68 @@
         }
 
         @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .main-controls {
+                flex-direction: column;
+            }
+
+            .master-bucket-btn {
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+
+            .buckets-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .bucket-container {
+                padding: 15px;
+            }
+
+            .viz-container {
+                padding: 20px;
+            }
+
             .person-circles-container {
-                width: 400px;
-                height: 400px;
+                width: 100%;
+                max-width: 350px;
+                height: 350px;
             }
             
             .person-icon {
-                font-size: 80px;
+                font-size: 60px;
             }
             
             .area-label-viz {
-                font-size: 10px;
-                padding: 3px 6px;
+                font-size: 9px;
+                padding: 3px 5px;
             }
             
             .area-end-dot {
-                width: 20px;
-                height: 20px;
-                font-size: 10px;
+                width: 18px;
+                height: 18px;
+                font-size: 9px;
+            }
+
+            .viz-legend {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 98%;
+                padding: 20px;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .confirm-panel {
+                min-width: 90%;
             }
         }
     </style>
@@ -855,11 +899,11 @@
         <!-- VISUALIZATION VIEW -->
         <div class="visualization-view" id="visualizationView">
             <div class="viz-container">
-                <div class="viz-title">⚖️ Həyat Balansı Görünüşü</div>
+                <div class="viz-title">☀️ Həyat Balansı Görünüşü</div>
                 
                 <div class="person-circles-container" id="personCircles">
                     <svg class="web-svg" id="webSvg"></svg>
-                    <div class="person-icon">⚖️</div>
+                    <div class="person-icon">☀️</div>
                 </div>
 
                 <div class="viz-legend" id="vizLegend"></div>
