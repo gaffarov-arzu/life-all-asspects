@@ -34,6 +34,10 @@
         .main-controls {
             text-align: center;
             margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .master-bucket-btn {
@@ -52,6 +56,10 @@
         .master-bucket-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+        }
+
+        .view-toggle-btn {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
         }
 
         .buckets-grid {
@@ -185,6 +193,171 @@
 
         .stat-dark {
             color: #333;
+        }
+
+        /* VISUALIZATION VIEW */
+        .visualization-view {
+            display: none;
+            padding: 40px 20px;
+        }
+
+        .visualization-view.active {
+            display: block;
+        }
+
+        .viz-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .viz-title {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .person-circles-container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .person-icon {
+            position: absolute;
+            z-index: 100;
+            font-size: 120px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .area-point {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .area-bar {
+            position: absolute;
+            height: 20px;
+            border-radius: 10px;
+            transform-origin: left center;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .area-bar:hover {
+            height: 25px;
+            filter: brightness(1.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+        }
+
+        .area-start-dot {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 3px solid;
+            background: rgba(0,0,0,0.5);
+            z-index: 60;
+            transition: all 0.3s;
+        }
+
+        .area-end-dot {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 3px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .area-end-dot:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+        }
+
+        .area-label-viz {
+            position: absolute;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 5px 10px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.6);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            white-space: nowrap;
+        }
+
+        .area-label-viz:hover {
+            transform: scale(1.1);
+            background: rgba(0,0,0,0.8);
+        }
+
+        .viz-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        .legend-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 4px solid;
+        }
+
+        .legend-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-info {
+            flex: 1;
+        }
+
+        .legend-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .legend-stats {
+            font-size: 12px;
+            opacity: 0.8;
         }
 
         .modal {
@@ -415,81 +588,6 @@
             border-radius: 15px;
         }
 
-        .drop-animation {
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            animation: drop-fall 1.2s ease-in forwards;
-            pointer-events: none;
-            z-index: 1000;
-            filter: blur(0.5px);
-        }
-
-        @keyframes drop-fall {
-            0% {
-                opacity: 1;
-                top: 50px;
-                transform: rotate(-45deg) scale(1);
-            }
-            50% {
-                opacity: 0.8;
-                transform: rotate(-45deg) scale(1.1);
-            }
-            100% {
-                opacity: 0;
-                top: 250px;
-                transform: rotate(-45deg) scale(0.8);
-            }
-        }
-
-        .faucet {
-            position: relative;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            opacity: 0.5;
-        }
-
-        .add-custom-action {
-            margin-top: 15px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .add-custom-action input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-            color: white;
-            font-size: 14px;
-        }
-
-        .add-custom-action input::placeholder {
-            color: rgba(255,255,255,0.5);
-        }
-
-        .add-custom-action button {
-            padding: 10px 25px;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .add-custom-action button:hover {
-            transform: scale(1.05);
-        }
-
-        /* IN-PAGE CONFIRMATION PANEL */
         .confirm-panel {
             display: none;
             position: fixed;
@@ -671,6 +769,47 @@
             border-color: #667eea;
         }
 
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.5;
+        }
+
+        .add-custom-action {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .add-custom-action input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-size: 14px;
+        }
+
+        .add-custom-action input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .add-custom-action button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .add-custom-action button:hover {
+            transform: scale(1.05);
+        }
+
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -688,6 +827,32 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(255,255,255,0.3);
         }
+
+        @media (max-width: 768px) {
+            .person-circles-container {
+                width: 400px;
+                height: 400px;
+            }
+            
+            .person-icon {
+                font-size: 80px;
+            }
+            
+            .area-bar {
+                height: 15px;
+            }
+            
+            .area-label-viz {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+            
+            .area-end-dot {
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -696,11 +861,30 @@
 
         <div class="main-controls">
             <button class="master-bucket-btn" onclick="openMasterBucket()">
-                🏆 ÜMUMI KOVA - Master Bucket
+                🏆 ÜMUMI KOVA
+            </button>
+            <button class="master-bucket-btn view-toggle-btn" onclick="toggleView()">
+                👤 VİZUALİZASİYA
             </button>
         </div>
 
-        <div class="buckets-grid" id="bucketsGrid"></div>
+        <!-- BUCKETS VIEW -->
+        <div class="buckets-view" id="bucketsView">
+            <div class="buckets-grid" id="bucketsGrid"></div>
+        </div>
+
+        <!-- VISUALIZATION VIEW -->
+        <div class="visualization-view" id="visualizationView">
+            <div class="viz-container">
+                <div class="viz-title">⚖️ Həyat Balansı Görünüşü</div>
+                
+                <div class="person-circles-container" id="personCircles">
+                    <div class="person-icon">⚖️</div>
+                </div>
+
+                <div class="viz-legend" id="vizLegend"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Confirmation Overlay -->
@@ -728,7 +912,6 @@
             </div>
 
             <div class="actions-section">
-                <!-- Kovanın İçi Görünüşü -->
                 <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 20px; margin-bottom: 25px;">
                     <h3 style="text-align: center; margin-bottom: 20px; font-size: 20px;">
                         🪣 Kovanın İçindəki Damlar
@@ -794,7 +977,7 @@
                     🪣 Ümumi Kovanın İçindəki Damlar
                 </h3>
                 
-                <div class="bucket-visual" id="masterBucketVisual" style="width: 300px; height: 400px; margin: 0 auto; border: 5px solid; border-image: linear-gradient(135deg, #FF8C42, #2ECC71, #9B59B6, #95D904, #FF6B9D, #6C7A89, #87CEEB, #00A8E8) 1; cursor: pointer;">
+                <div class="bucket-visual" id="masterBucketVisual" style="width: 300px; height: 400px; margin: 0 auto; border: 5px solid; border-image: linear-gradient(135deg, #e67e22, #27ae60, #8e44ad, #f39c12, #e74c3c, #3498db, #16a085, #9b59b6) 1; cursor: pointer;">
                     <div class="bucket-drops-container" id="masterDropsContainer"></div>
                     <div class="bucket-percentage" id="masterPercentage">0%</div>
                 </div>
@@ -832,10 +1015,11 @@
     </div>
 
     <script>
+        // IMPROVED COLORS FOR EACH AREA
         const areas = [
             { 
                 name: 'Career', 
-                color: '#FF8C42',
+                color: '#e67e22', // Orange - karyera üçün enerjili və peşəkar
                 lightActions: [
                     'Pul dağıtmaq',
                     'İxtisasını öyrənmək',
@@ -848,7 +1032,7 @@
             },
             { 
                 name: 'Mental', 
-                color: '#2ECC71',
+                color: '#27ae60', // Yaşıl - zehni sağlamlıq, sabitlik
                 lightActions: [
                     'Duyğudan qacmaq',
                     'Şükür etmək'
@@ -859,7 +1043,7 @@
             },
             { 
                 name: 'Physical', 
-                color: '#95D904',
+                color: '#e74c3c', // Qırmızı - fiziki enerji və qüvvə
                 lightActions: [
                     'Yüksək intizam',
                     'Hərəkətsizlik'
@@ -871,7 +1055,7 @@
             },
             { 
                 name: 'Social', 
-                color: '#87CEEB',
+                color: '#3498db', // Mavi - ünsiyyət və sosial əlaqələr
                 lightActions: [
                     'Oxumu başqaları ilə müqayisə',
                     'Kın və küsmək'
@@ -883,7 +1067,7 @@
             },
             { 
                 name: 'Romantic', 
-                color: '#FF6B9D',
+                color: '#e91e63', // Pembe - eşq və münasibətlər
                 lightActions: [],
                 darkActions: [
                     'Tənhalıq',
@@ -892,7 +1076,7 @@
             },
             { 
                 name: 'Hobiler', 
-                color: '#6C7A89',
+                color: '#9b59b6', // Bənövşəyi - yaradıcılıq və əyləncə
                 lightActions: [],
                 darkActions: [
                     'Hobbisizlik',
@@ -901,7 +1085,7 @@
             },
             { 
                 name: 'Finans', 
-                color: '#00A8E8',
+                color: '#f39c12', // Qızılı - pul və maddi rifahlıq
                 lightActions: [],
                 darkActions: [
                     'İsraf',
@@ -910,7 +1094,7 @@
             },
             { 
                 name: 'Spritual', 
-                color: '#9B59B6',
+                color: '#8e44ad', // Tünd bənövşəyi - mənəviyyat və məna
                 lightActions: [],
                 darkActions: [
                     'Mənəvi boşluq',
@@ -929,8 +1113,149 @@
         }));
 
         let currentArea = null;
+        let currentView = 'buckets'; // 'buckets' or 'visualization'
 
-        // CONFIRMATION SYSTEM
+        function toggleView() {
+            const bucketsView = document.getElementById('bucketsView');
+            const vizView = document.getElementById('visualizationView');
+            
+            if (currentView === 'buckets') {
+                bucketsView.style.display = 'none';
+                vizView.classList.add('active');
+                currentView = 'visualization';
+                renderVisualization();
+            } else {
+                bucketsView.style.display = 'block';
+                vizView.classList.remove('active');
+                currentView = 'buckets';
+            }
+        }
+
+        // CALCULATE CIRCLE VALUE (0-10 based on net light - dark percentage)
+        function calculateCircleValue(area) {
+            const netValue = area.lightLevel - area.darkLevel;
+            // Convert -100 to 100 range into 0 to 10
+            const circleValue = Math.max(0, Math.min(10, (netValue + 100) / 20));
+            return circleValue;
+        }
+
+        // RENDER VISUALIZATION - RADIAL BARS FROM CENTER
+        function renderVisualization() {
+            const container = document.getElementById('personCircles');
+            const legend = document.getElementById('vizLegend');
+            
+            // Clear existing elements (except center icon)
+            const existingElements = container.querySelectorAll('.area-point, .area-bar, .area-start-dot, .area-end-dot, .area-label-viz');
+            existingElements.forEach(el => el.remove());
+            
+            const centerX = 300;
+            const centerY = 300;
+            const startDistance = 80; // Distance from center where bar starts (0 point)
+            const maxBarLength = 180; // Maximum length of bar (at value 10)
+            const angleStep = (2 * Math.PI) / areasData.length;
+            
+            areasData.forEach((area, index) => {
+                const circleValue = calculateCircleValue(area);
+                
+                // Calculate angle for this area
+                const angle = index * angleStep - Math.PI / 2; // Start from top
+                const cos = Math.cos(angle);
+                const sin = Math.sin(angle);
+                
+                // Start point (0 value position)
+                const startX = centerX + cos * startDistance;
+                const startY = centerY + sin * startDistance;
+                
+                // Bar length based on value (0 to maxBarLength)
+                const barLength = (circleValue / 10) * maxBarLength;
+                
+                // End point
+                const endX = startX + cos * barLength;
+                const endY = startY + sin * barLength;
+                
+                // Create start dot (0 point)
+                const startDot = document.createElement('div');
+                startDot.className = 'area-start-dot';
+                startDot.style.left = (startX - 7.5) + 'px';
+                startDot.style.top = (startY - 7.5) + 'px';
+                startDot.style.borderColor = area.color;
+                container.appendChild(startDot);
+                
+                // Create bar (only if value > 0)
+                if (circleValue > 0) {
+                    const bar = document.createElement('div');
+                    bar.className = 'area-bar';
+                    bar.style.width = barLength + 'px';
+                    bar.style.left = startX + 'px';
+                    bar.style.top = (startY - 10) + 'px';
+                    bar.style.transform = `rotate(${angle}rad)`;
+                    bar.style.background = `linear-gradient(to right, ${area.color}aa, ${area.color}ff)`;
+                    bar.onclick = () => openAreaModal(area.name);
+                    container.appendChild(bar);
+                    
+                    // Create end dot (current value position)
+                    const endDot = document.createElement('div');
+                    endDot.className = 'area-end-dot';
+                    endDot.style.left = (endX - 12.5) + 'px';
+                    endDot.style.top = (endY - 12.5) + 'px';
+                    endDot.style.borderColor = area.color;
+                    endDot.style.background = area.color;
+                    endDot.textContent = circleValue.toFixed(1);
+                    endDot.onclick = () => openAreaModal(area.name);
+                    container.appendChild(endDot);
+                }
+                
+                // Label position (beyond the max possible bar length)
+                const labelDistance = startDistance + maxBarLength + 40;
+                const labelX = centerX + cos * labelDistance;
+                const labelY = centerY + sin * labelDistance;
+                
+                const label = document.createElement('div');
+                label.className = 'area-label-viz';
+                label.style.color = area.color;
+                label.style.borderColor = area.color;
+                
+                // Adjust label position to center it
+                const tempLabel = document.createElement('div');
+                tempLabel.style.position = 'absolute';
+                tempLabel.style.visibility = 'hidden';
+                tempLabel.style.whiteSpace = 'nowrap';
+                tempLabel.textContent = area.name;
+                document.body.appendChild(tempLabel);
+                const labelWidth = tempLabel.offsetWidth;
+                document.body.removeChild(tempLabel);
+                
+                label.style.left = (labelX - labelWidth / 2 - 10) + 'px';
+                label.style.top = (labelY - 15) + 'px';
+                label.textContent = area.name;
+                label.onclick = () => openAreaModal(area.name);
+                container.appendChild(label);
+            });
+            
+            // Render legend
+            legend.innerHTML = '';
+            areasData.forEach(area => {
+                const circleValue = calculateCircleValue(area);
+                const netValue = area.lightLevel - area.darkLevel;
+                
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.style.borderLeftColor = area.color;
+                legendItem.innerHTML = `
+                    <div class="legend-color" style="background: linear-gradient(to right, ${area.color}aa, ${area.color}ff);"></div>
+                    <div class="legend-info">
+                        <div class="legend-name" style="color: ${area.color};">${area.name}</div>
+                        <div class="legend-stats">
+                            Dəyər: <strong>${circleValue.toFixed(1)}/10</strong><br>
+                            ☀️ ${area.lightLevel.toFixed(1)}% | 🌙 ${area.darkLevel.toFixed(1)}% | Net: ${netValue.toFixed(1)}%
+                        </div>
+                    </div>
+                `;
+                legendItem.onclick = () => openAreaModal(area.name);
+                legend.appendChild(legendItem);
+            });
+        }
+
         function showConfirm(options) {
             return new Promise((resolve) => {
                 const overlay = document.getElementById('confirmOverlay');
@@ -947,7 +1272,6 @@
                 inputArea.innerHTML = '';
                 buttonsArea.innerHTML = '';
 
-                // Input field
                 if (options.input) {
                     const inputGroup = document.createElement('div');
                     inputGroup.className = 'confirm-input-group';
@@ -959,7 +1283,6 @@
                         inputGroup.appendChild(label);
                     }
 
-                    // Quick select buttons
                     if (options.input.quickSelect) {
                         const quickDiv = document.createElement('div');
                         quickDiv.className = 'quick-select-buttons';
@@ -992,7 +1315,6 @@
                     setTimeout(() => input.focus(), 100);
                 }
 
-                // Buttons
                 if (options.buttons) {
                     options.buttons.forEach(btn => {
                         const button = document.createElement('button');
@@ -1021,36 +1343,29 @@
             renderBuckets();
         }
 
-        // CREATE GRADIENT DROP - area color mixed with white (light) or black (dark)
         function createGradientDrop(areaColor, type) {
             const drop = document.createElement('div');
             drop.className = 'drop-in-bucket';
             
             if (type === 'light') {
-                // Gradient: area color to white
                 drop.style.background = `linear-gradient(135deg, ${areaColor} 0%, #ffffff 100%)`;
             } else {
-                // Gradient: area color to black
                 drop.style.background = `linear-gradient(135deg, ${areaColor} 0%, #000000 100%)`;
             }
             
             return drop;
         }
 
-        // RENDER DROPS IN BUCKET
         function renderBucketDrops(container, area) {
             container.innerHTML = '';
             
-            // Calculate how many drops to show (1 drop per 0.5%)
             const lightDrops = Math.floor(area.lightLevel * 2);
             const darkDrops = Math.floor(area.darkLevel * 2);
             
-            // Add dark drops first (bottom)
             for (let i = 0; i < darkDrops; i++) {
                 container.appendChild(createGradientDrop(area.color, 'dark'));
             }
             
-            // Add light drops on top
             for (let i = 0; i < lightDrops; i++) {
                 container.appendChild(createGradientDrop(area.color, 'light'));
             }
@@ -1062,6 +1377,7 @@
 
             areasData.forEach(area => {
                 const totalLevel = area.lightLevel + area.darkLevel;
+                const circleValue = calculateCircleValue(area);
 
                 const bucketDiv = document.createElement('div');
                 bucketDiv.className = 'bucket-container';
@@ -1070,6 +1386,13 @@
 
                 bucketDiv.innerHTML = `
                     <div class="bucket-name" style="color: ${area.color}">${area.name}</div>
+                    
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <div style="font-size: 24px; font-weight: bold; color: ${area.color};">
+                            ${circleValue.toFixed(1)}/10
+                        </div>
+                        <div style="font-size: 11px; opacity: 0.7;">Həyat Dəyəri</div>
+                    </div>
                     
                     <div class="faucet" style="color: ${area.color}" onclick="event.stopPropagation(); openAreaModal('${area.name}')">
                         <svg viewBox="0 0 100 80" fill="currentColor">
@@ -1108,18 +1431,24 @@
 
                 grid.appendChild(bucketDiv);
                 
-                // Render drops after adding to DOM
                 const dropsContainer = bucketDiv.querySelector('.bucket-drops-container');
                 renderBucketDrops(dropsContainer, area);
             });
+            
+            // Update visualization if it's active
+            if (currentView === 'visualization') {
+                renderVisualization();
+            }
         }
 
         function openAreaModal(areaName) {
             currentArea = areaName;
             const area = areasData.find(a => a.name === areaName);
 
+            const circleValue = calculateCircleValue(area);
             document.getElementById('modalTitle').innerHTML = `
                 <span style="color: ${area.color}">${area.name}</span>
+                <span style="font-size: 18px; opacity: 0.8;"> - ${circleValue.toFixed(1)}/10</span>
             `;
 
             updateModalBucket(area);
@@ -1144,7 +1473,6 @@
             const totalLevel = area.lightLevel + area.darkLevel;
             modalPercentage.textContent = totalLevel.toFixed(1) + '%';
 
-            // Render drops in modal bucket
             renderBucketDrops(modalDropsContainer, area);
 
             modalBucket.onclick = () => showBucketDetails(area);
@@ -1379,7 +1707,6 @@
             const area = areasData.find(a => a.name === currentArea);
             if (!area) return;
             
-            // Step 1: Confirm action
             const confirmResult = await showConfirm({
                 title: `${type === 'light' ? '☀️' : '🌙'} Əməl Əlavə Et`,
                 subtitle: `Sahə: ${area.name}`,
@@ -1392,7 +1719,6 @@
             
             if (confirmResult.button !== 'yes') return;
             
-            // Step 2: Amount selection
             const amountResult = await showConfirm({
                 title: '📊 Miqdar Seçin',
                 subtitle: action,
@@ -1419,7 +1745,6 @@
             
             const amount = parseFloat(amountResult.input) || 1;
             
-            // Step 3: Note (optional)
             const noteResult = await showConfirm({
                 title: '📝 Not Əlavə Et (İxtiyari)',
                 subtitle: action,
@@ -1439,7 +1764,6 @@
             
             const note = noteResult.button === 'add' ? noteResult.input : '';
             
-            // Add action
             addActionToArea(action, type, area, amount, note || '');
         }
 
@@ -1650,12 +1974,10 @@
             const avgDark = totalDark / areasData.length;
             const totalAvg = avgLight + avgDark;
 
-            // Render drops in master bucket
             const masterDropsContainer = document.getElementById('masterDropsContainer');
             if (masterDropsContainer) {
                 masterDropsContainer.innerHTML = '';
                 
-                // Sort history by timestamp and render drops
                 const sortedHistory = allHistory.sort((a, b) => a.timestamp - b.timestamp);
                 sortedHistory.forEach(item => {
                     const drop = createGradientDrop(item.color, item.type);
@@ -1672,7 +1994,6 @@
             document.getElementById('lightCount').textContent = lightCount + ' əməl';
             document.getElementById('darkCount').textContent = darkCount + ' əməl';
 
-            // Kovaya klik - tam siyahı göstər
             const masterBucket = document.getElementById('masterBucketVisual');
             if (masterBucket) {
                 masterBucket.onclick = () => showMasterBucketDetails(allHistory);
