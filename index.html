@@ -245,39 +245,21 @@
             50% { transform: scale(1.05); }
         }
 
+        .web-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 40;
+        }
+
         .area-point {
             position: absolute;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 50;
-        }
-
-        .area-bar {
-            position: absolute;
-            height: 20px;
-            border-radius: 10px;
-            transform-origin: left center;
-            transition: all 0.5s ease;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-        }
-
-        .area-bar:hover {
-            height: 25px;
-            filter: brightness(1.2);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-        }
-
-        .area-start-dot {
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            border: 3px solid;
-            background: rgba(0,0,0,0.5);
-            z-index: 60;
-            transition: all 0.3s;
         }
 
         .area-end-dot {
@@ -296,6 +278,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.4);
             color: white;
             text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            z-index: 60;
         }
 
         .area-end-dot:hover {
@@ -838,10 +821,6 @@
                 font-size: 80px;
             }
             
-            .area-bar {
-                height: 15px;
-            }
-            
             .area-label-viz {
                 font-size: 10px;
                 padding: 3px 6px;
@@ -879,6 +858,7 @@
                 <div class="viz-title">⚖️ Həyat Balansı Görünüşü</div>
                 
                 <div class="person-circles-container" id="personCircles">
+                    <svg class="web-svg" id="webSvg"></svg>
                     <div class="person-icon">⚖️</div>
                 </div>
 
@@ -1019,7 +999,7 @@
         const areas = [
             { 
                 name: 'Career', 
-                color: '#e67e22', // Orange - karyera üçün enerjili və peşəkar
+                color: '#e67e22',
                 lightActions: [
                     'Pul dağıtmaq',
                     'İxtisasını öyrənmək',
@@ -1032,7 +1012,7 @@
             },
             { 
                 name: 'Mental', 
-                color: '#27ae60', // Yaşıl - zehni sağlamlıq, sabitlik
+                color: '#27ae60',
                 lightActions: [
                     'Duyğudan qacmaq',
                     'Şükür etmək'
@@ -1043,7 +1023,7 @@
             },
             { 
                 name: 'Physical', 
-                color: '#e74c3c', // Qırmızı - fiziki enerji və qüvvə
+                color: '#e74c3c',
                 lightActions: [
                     'Yüksək intizam',
                     'Hərəkətsizlik'
@@ -1055,7 +1035,7 @@
             },
             { 
                 name: 'Social', 
-                color: '#3498db', // Mavi - ünsiyyət və sosial əlaqələr
+                color: '#3498db',
                 lightActions: [
                     'Oxumu başqaları ilə müqayisə',
                     'Kın və küsmək'
@@ -1067,7 +1047,7 @@
             },
             { 
                 name: 'Romantic', 
-                color: '#e91e63', // Pembe - eşq və münasibətlər
+                color: '#e91e63',
                 lightActions: [],
                 darkActions: [
                     'Tənhalıq',
@@ -1076,7 +1056,7 @@
             },
             { 
                 name: 'Hobiler', 
-                color: '#9b59b6', // Bənövşəyi - yaradıcılıq və əyləncə
+                color: '#9b59b6',
                 lightActions: [],
                 darkActions: [
                     'Hobbisizlik',
@@ -1085,7 +1065,7 @@
             },
             { 
                 name: 'Finans', 
-                color: '#f39c12', // Qızılı - pul və maddi rifahlıq
+                color: '#f39c12',
                 lightActions: [],
                 darkActions: [
                     'İsraf',
@@ -1094,7 +1074,7 @@
             },
             { 
                 name: 'Spritual', 
-                color: '#8e44ad', // Tünd bənövşəyi - mənəviyyat və məna
+                color: '#8e44ad',
                 lightActions: [],
                 darkActions: [
                     'Mənəvi boşluq',
@@ -1113,7 +1093,7 @@
         }));
 
         let currentArea = null;
-        let currentView = 'buckets'; // 'buckets' or 'visualization'
+        let currentView = 'buckets';
 
         function toggleView() {
             const bucketsView = document.getElementById('bucketsView');
@@ -1139,76 +1119,145 @@
             return circleValue;
         }
 
-        // RENDER VISUALIZATION - RADIAL BARS FROM CENTER
+        // RENDER VISUALIZATION - CONNECTED WEB FROM CENTER
         function renderVisualization() {
             const container = document.getElementById('personCircles');
-            const legend = document.getElementById('vizLegend');
+            const svg = document.getElementById('webSvg');
             
-            // Clear existing elements (except center icon)
-            const existingElements = container.querySelectorAll('.area-point, .area-bar, .area-start-dot, .area-end-dot, .area-label-viz');
+            // Clear existing elements (except center icon and SVG)
+            const existingElements = container.querySelectorAll('.area-point, .area-end-dot, .area-label-viz');
             existingElements.forEach(el => el.remove());
+            
+            // Clear SVG
+            svg.innerHTML = '';
             
             const centerX = 300;
             const centerY = 300;
-            const startDistance = 80; // Distance from center where bar starts (0 point)
-            const maxBarLength = 180; // Maximum length of bar (at value 10)
+            const maxRadius = 220; // Maximum radius for value 10
             const angleStep = (2 * Math.PI) / areasData.length;
             
-            areasData.forEach((area, index) => {
+            // Calculate positions for all points
+            const points = areasData.map((area, index) => {
                 const circleValue = calculateCircleValue(area);
-                
-                // Calculate angle for this area
                 const angle = index * angleStep - Math.PI / 2; // Start from top
-                const cos = Math.cos(angle);
-                const sin = Math.sin(angle);
+                const radius = (circleValue / 10) * maxRadius;
                 
-                // Start point (0 value position)
-                const startX = centerX + cos * startDistance;
-                const startY = centerY + sin * startDistance;
+                return {
+                    x: centerX + Math.cos(angle) * radius,
+                    y: centerY + Math.sin(angle) * radius,
+                    area: area,
+                    circleValue: circleValue,
+                    angle: angle
+                };
+            });
+            
+            // Draw filled polygon connecting all points
+            if (points.length > 0) {
+                const polygonPoints = points.map(p => `${p.x},${p.y}`).join(' ');
                 
-                // Bar length based on value (0 to maxBarLength)
-                const barLength = (circleValue / 10) * maxBarLength;
+                // Create gradient for the polygon fill
+                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'radialGradient');
+                gradient.setAttribute('id', 'webGradient');
+                gradient.setAttribute('cx', '50%');
+                gradient.setAttribute('cy', '50%');
+                gradient.setAttribute('r', '50%');
                 
-                // End point
-                const endX = startX + cos * barLength;
-                const endY = startY + sin * barLength;
+                const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                stop1.setAttribute('offset', '0%');
+                stop1.setAttribute('style', 'stop-color:rgba(255,255,255,0.2);stop-opacity:1');
                 
-                // Create start dot (0 point)
-                const startDot = document.createElement('div');
-                startDot.className = 'area-start-dot';
-                startDot.style.left = (startX - 7.5) + 'px';
-                startDot.style.top = (startY - 7.5) + 'px';
-                startDot.style.borderColor = area.color;
-                container.appendChild(startDot);
+                const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                stop2.setAttribute('offset', '100%');
+                stop2.setAttribute('style', 'stop-color:rgba(255,255,255,0.05);stop-opacity:1');
                 
-                // Create bar (only if value > 0)
-                if (circleValue > 0) {
-                    const bar = document.createElement('div');
-                    bar.className = 'area-bar';
-                    bar.style.width = barLength + 'px';
-                    bar.style.left = startX + 'px';
-                    bar.style.top = (startY - 10) + 'px';
-                    bar.style.transform = `rotate(${angle}rad)`;
-                    bar.style.background = `linear-gradient(to right, ${area.color}aa, ${area.color}ff)`;
-                    bar.onclick = () => openAreaModal(area.name);
-                    container.appendChild(bar);
+                gradient.appendChild(stop1);
+                gradient.appendChild(stop2);
+                defs.appendChild(gradient);
+                svg.appendChild(defs);
+                
+                // Draw filled polygon
+                const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                polygon.setAttribute('points', polygonPoints);
+                polygon.setAttribute('fill', 'url(#webGradient)');
+                polygon.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+                polygon.setAttribute('stroke-width', '2');
+                polygon.style.transition = 'all 0.5s ease';
+                svg.appendChild(polygon);
+                
+                // Draw lines from center to each point
+                points.forEach(point => {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', centerX);
+                    line.setAttribute('y1', centerY);
+                    line.setAttribute('x2', point.x);
+                    line.setAttribute('y2', point.y);
+                    line.setAttribute('stroke', point.area.color);
+                    line.setAttribute('stroke-width', '2');
+                    line.setAttribute('opacity', '0.5');
+                    line.style.transition = 'all 0.5s ease';
+                    svg.appendChild(line);
+                });
+                
+                // Draw connecting lines between consecutive points
+                for (let i = 0; i < points.length; i++) {
+                    const nextI = (i + 1) % points.length;
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', points[i].x);
+                    line.setAttribute('y1', points[i].y);
+                    line.setAttribute('x2', points[nextI].x);
+                    line.setAttribute('y2', points[nextI].y);
                     
-                    // Create end dot (current value position)
-                    const endDot = document.createElement('div');
-                    endDot.className = 'area-end-dot';
-                    endDot.style.left = (endX - 12.5) + 'px';
-                    endDot.style.top = (endY - 12.5) + 'px';
-                    endDot.style.borderColor = area.color;
-                    endDot.style.background = area.color;
-                    endDot.textContent = circleValue.toFixed(1);
-                    endDot.onclick = () => openAreaModal(area.name);
-                    container.appendChild(endDot);
+                    // Create gradient from one color to the next
+                    const gradientId = `lineGrad${i}`;
+                    const lineGrad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+                    lineGrad.setAttribute('id', gradientId);
+                    
+                    const gradStop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                    gradStop1.setAttribute('offset', '0%');
+                    gradStop1.setAttribute('style', `stop-color:${points[i].area.color};stop-opacity:1`);
+                    
+                    const gradStop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                    gradStop2.setAttribute('offset', '100%');
+                    gradStop2.setAttribute('style', `stop-color:${points[nextI].area.color};stop-opacity:1`);
+                    
+                    lineGrad.appendChild(gradStop1);
+                    lineGrad.appendChild(gradStop2);
+                    svg.querySelector('defs').appendChild(lineGrad);
+                    
+                    line.setAttribute('stroke', `url(#${gradientId})`);
+                    line.setAttribute('stroke-width', '3');
+                    line.style.transition = 'all 0.5s ease';
+                    line.style.cursor = 'pointer';
+                    line.addEventListener('mouseenter', function() {
+                        this.setAttribute('stroke-width', '5');
+                    });
+                    line.addEventListener('mouseleave', function() {
+                        this.setAttribute('stroke-width', '3');
+                    });
+                    svg.appendChild(line);
                 }
+            }
+            
+            // Create dots and labels
+            points.forEach((point, index) => {
+                const area = point.area;
                 
-                // Label position (beyond the max possible bar length)
-                const labelDistance = startDistance + maxBarLength + 40;
-                const labelX = centerX + cos * labelDistance;
-                const labelY = centerY + sin * labelDistance;
+                // Create end dot
+                const endDot = document.createElement('div');
+                endDot.className = 'area-end-dot';
+                endDot.style.left = (point.x - 12.5) + 'px';
+                endDot.style.top = (point.y - 12.5) + 'px';
+                endDot.style.borderColor = area.color;
+                endDot.style.background = area.color;
+                endDot.textContent = point.circleValue.toFixed(1);
+                endDot.onclick = () => openAreaModal(area.name);
+                container.appendChild(endDot);
+                
+                // Label position (beyond the point)
+                const labelDistance = maxRadius + 50;
+                const labelX = centerX + Math.cos(point.angle) * labelDistance;
+                const labelY = centerY + Math.sin(point.angle) * labelDistance;
                 
                 const label = document.createElement('div');
                 label.className = 'area-label-viz';
@@ -1233,6 +1282,7 @@
             });
             
             // Render legend
+            const legend = document.getElementById('vizLegend');
             legend.innerHTML = '';
             areasData.forEach(area => {
                 const circleValue = calculateCircleValue(area);
@@ -1435,7 +1485,6 @@
                 renderBucketDrops(dropsContainer, area);
             });
             
-            // Update visualization if it's active
             if (currentView === 'visualization') {
                 renderVisualization();
             }
