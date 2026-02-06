@@ -211,7 +211,6 @@ function renderVisualization() {
     
     svg.innerHTML = '';
     
-    // Mobil kontrol
     const isMobile = window.innerWidth <= 768;
     const containerSize = isMobile ? 300 : 600;
     const centerX = containerSize / 2;
@@ -1363,3 +1362,4 @@ document.querySelectorAll('.modal').forEach(modal => {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', init);
+

@@ -59,17 +59,17 @@ function initDatabase() {
     initializeDefaultAreas();
 }
 
-// Varsayılan sahələri database'e ekle
+// Varsayılan sahələri database'e ekle - HƏR SAHƏ FƏRQLI RƏNG
 function initializeDefaultAreas() {
     const defaultAreas = [
-        { name: 'Career', color: '#e67e22', lightActions: ['Pul dağıtmaq', 'İxtisasını öyrənmək', 'İşyerini gözəlləndirmək'], darkActions: ['İşdən qaçmaq', 'Vaxtında bitirməmək'] },
-        { name: 'Mental', color: '#27ae60', lightActions: ['Duyğudan qacmaq', 'Şükür etmək'], darkActions: ['Porno və masaj yerləri'] },
-        { name: 'Physical', color: '#e74c3c', lightActions: ['Yüksək intizam', 'Hərəkətsizlik'], darkActions: ['Spirtli içki', 'Tənbəllik'] },
-        { name: 'Social', color: '#3498db', lightActions: ['Oxumu başqaları ilə müqayisə', 'Kın və küsmək'], darkActions: ['İzolasiya', 'Sosial medyada vaxt itirmək'] },
-        { name: 'Romantic', color: '#e91e63', lightActions: [], darkActions: ['Tənhalıq', 'Sevgisizlik'] },
-        { name: 'Hobiler', color: '#9b59b6', lightActions: [], darkActions: ['Hobbisizlik', 'Yaradıcılıqdan uzaqlaşma'] },
-        { name: 'Finans', color: '#f39c12', lightActions: [], darkActions: ['İsraf', 'Planlaşdırma etməmə'] },
-        { name: 'Spritual', color: '#8e44ad', lightActions: [], darkActions: ['Mənəvi boşluq', 'Dəyərlərdən uzaqlaşma'] }
+        { name: 'Career', color: '#FF6B35', lightActions: ['Pul dağıtmaq', 'İxtisasını öyrənmək', 'İşyerini gözəlləndirmək'], darkActions: ['İşdən qaçmaq', 'Vaxtında bitirməmək'] },
+        { name: 'Mental', color: '#00B4D8', lightActions: ['Duyğudan qacmaq', 'Şükür etmək'], darkActions: ['Porno və masaj yerləri'] },
+        { name: 'Physical', color: '#E63946', lightActions: ['Yüksək intizam', 'Hərəkətsizlik'], darkActions: ['Spirtli içki', 'Tənbəllik'] },
+        { name: 'Social', color: '#06FFA5', lightActions: ['Oxumu başqaları ilə müqayisə', 'Kın və küsmək'], darkActions: ['İzolasiya', 'Sosial medyada vaxt itirmək'] },
+        { name: 'Romantic', color: '#F72585', lightActions: [], darkActions: ['Tənhalıq', 'Sevgisizlik'] },
+        { name: 'Hobiler', color: '#7209B7', lightActions: [], darkActions: ['Hobbisizlik', 'Yaradıcılıqdan uzaqlaşma'] },
+        { name: 'Finans', color: '#FFB627', lightActions: [], darkActions: ['İsraf', 'Planlaşdırma etməmə'] },
+        { name: 'Spritual', color: '#4361EE', lightActions: [], darkActions: ['Mənəvi boşluq', 'Dəyərlərdən uzaqlaşma'] }
     ];
 
     defaultAreas.forEach(area => {
@@ -333,3 +333,4 @@ process.on('SIGINT', () => {
         process.exit(0);
     });
 });
+
