@@ -92,6 +92,35 @@
             color: #e74c3c;
         }
 
+        .reset-all-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+            transition: all 0.3s;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reset-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(231, 76, 60, 0.6);
+        }
+
+        .reset-all-btn:active {
+            transform: translateY(0);
+        }
+
         .status-dot {
             width: 10px;
             height: 10px;
@@ -908,32 +937,46 @@
             }
 
             .viz-container {
-                padding: 20px;
+                padding: 15px;
             }
 
             .person-circles-container {
                 width: 100%;
-                max-width: 350px;
-                height: 350px;
+                max-width: 300px;
+                height: 300px;
             }
             
             .person-icon {
-                font-size: 60px;
+                font-size: 50px;
             }
             
             .area-label-viz {
-                font-size: 9px;
-                padding: 3px 5px;
+                font-size: 8px;
+                padding: 2px 4px;
+                white-space: normal;
+                max-width: 60px;
+                text-align: center;
+                line-height: 1.2;
             }
             
             .area-end-dot {
-                width: 18px;
-                height: 18px;
-                font-size: 9px;
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
+                border-width: 2px;
             }
 
             .viz-legend {
                 grid-template-columns: 1fr;
+            }
+
+            .legend-item {
+                padding: 10px;
+            }
+
+            .legend-color {
+                width: 30px;
+                height: 30px;
             }
 
             .modal-content {
@@ -955,6 +998,13 @@
                 font-size: 10px;
                 padding: 8px 12px;
             }
+
+            .reset-all-btn {
+                bottom: 10px;
+                left: 10px;
+                padding: 10px 15px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -969,6 +1019,11 @@
         <div class="status-dot" style="background: #4CAF50;"></div>
         <span>Bağlı</span>
     </div>
+
+    <!-- Reset All Button -->
+    <button class="reset-all-btn" onclick="resetAllAreasFromButton()" title="Bütün sahələri və tarixçəni sıfırla">
+        🗑️ Hamısını Sıfırla
+    </button>
 
     <div class="container">
         <h1>🌊 Həyat Balansı - Life Balance Tracker 🌊</h1>
@@ -1079,12 +1134,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>🏆 Ümumi Kova - Master Bucket</h2>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <button onclick="resetAllAreas()" style="padding: 10px 20px; background: #e74c3c; border: none; border-radius: 10px; color: white; cursor: pointer; font-weight: bold; font-size: 14px;">
-                        🗑️ Hamısını Sıfırla
-                    </button>
-                    <button class="close-btn" onclick="closeModal('masterModal')">&times;</button>
-                </div>
+                <button class="close-btn" onclick="closeModal('masterModal')">&times;</button>
             </div>
 
             <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 20px; margin-bottom: 25px;">

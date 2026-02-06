@@ -1,5 +1,5 @@
 // API BASE URL
-const API_BASE = 'http://44.212.246.54:3000/api';
+const API_BASE = 'http://localhost:3000/api';
 
 // Global Variables
 let areasData = [];
@@ -211,9 +211,15 @@ function renderVisualization() {
     
     svg.innerHTML = '';
     
-    const centerX = 300;
-    const centerY = 300;
-    const maxRadius = 220;
+    // Mobil kontrol
+    const isMobile = window.innerWidth <= 768;
+    const containerSize = isMobile ? 300 : 600;
+    const centerX = containerSize / 2;
+    const centerY = containerSize / 2;
+    const maxRadius = isMobile ? 110 : 220;
+    const labelDistance = isMobile ? maxRadius + 35 : maxRadius + 50;
+    const dotSize = isMobile ? 20 : 25;
+    
     const angleStep = (2 * Math.PI) / areasData.length;
     
     const points = areasData.map((area, index) => {
@@ -317,15 +323,16 @@ function renderVisualization() {
         
         const endDot = document.createElement('div');
         endDot.className = 'area-end-dot';
-        endDot.style.left = (point.x - 12.5) + 'px';
-        endDot.style.top = (point.y - 12.5) + 'px';
+        endDot.style.left = (point.x - dotSize / 2) + 'px';
+        endDot.style.top = (point.y - dotSize / 2) + 'px';
+        endDot.style.width = dotSize + 'px';
+        endDot.style.height = dotSize + 'px';
         endDot.style.borderColor = area.color;
         endDot.style.background = area.color;
         endDot.textContent = point.circleValue.toFixed(1);
         endDot.onclick = () => openAreaModal(area.name);
         container.appendChild(endDot);
         
-        const labelDistance = maxRadius + 50;
         const labelX = centerX + Math.cos(point.angle) * labelDistance;
         const labelY = centerY + Math.sin(point.angle) * labelDistance;
         
@@ -683,7 +690,30 @@ function renderActions(type, actions) {
             showActionDialog(action, type);
         };
         
+        const controlsDiv = document.createElement('div');
+        controlsDiv.style.cssText = 'display: flex; gap: 3px; margin-top: 5px;';
+        
+        const editBtn = document.createElement('button');
+        editBtn.style.cssText = 'flex: 1; padding: 5px; background: #3498db; border: none; border-radius: 5px; color: white; cursor: pointer; font-size: 11px; font-weight: bold;';
+        editBtn.textContent = '✏️ Dəyişdir';
+        editBtn.onclick = (e) => {
+            e.stopPropagation();
+            editAction(action, type, index);
+        };
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.style.cssText = 'flex: 1; padding: 5px; background: #e74c3c; border: none; border-radius: 5px; color: white; cursor: pointer; font-size: 11px; font-weight: bold;';
+        deleteBtn.textContent = '🗑️ Sil';
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteAction(action, type, index);
+        };
+        
+        controlsDiv.appendChild(editBtn);
+        controlsDiv.appendChild(deleteBtn);
+        
         actionWrapper.appendChild(btn);
+        actionWrapper.appendChild(controlsDiv);
         container.appendChild(actionWrapper);
     });
 }
@@ -935,6 +965,74 @@ async function addCustomAction(type) {
     }
 }
 
+// Edit Action
+async function editAction(oldAction, type, index) {
+    const area = areasData.find(a => a.name === currentArea);
+    if (!area) return;
+    
+    const result = await showConfirm({
+        title: '✏️ Əməli Dəyişdir',
+        subtitle: `Köhnə ad: "${oldAction}"`,
+        message: 'Yeni adı daxil edin:',
+        input: {
+            label: 'Yeni Ad',
+            placeholder: 'Yeni əməl adını yazın...',
+            default: oldAction
+        },
+        buttons: [
+            { text: 'Ləğv et', value: 'cancel', class: 'confirm-btn-no' },
+            { text: 'Yadda saxla', value: 'save', class: 'confirm-btn-yes' }
+        ]
+    });
+    
+    if (result.button !== 'save' || !result.input || result.input.trim() === '') {
+        return;
+    }
+    
+    if (type === 'light') {
+        area.lightActions[index] = result.input.trim();
+    } else {
+        area.darkActions[index] = result.input.trim();
+    }
+    
+    renderActions('light', area.lightActions);
+    renderActions('dark', area.darkActions);
+    
+    await showConfirm({
+        title: '✅ Uğurlu',
+        message: `"${oldAction}" → "${result.input.trim()}" olaraq dəyişdirildi!`,
+        buttons: [
+            { text: 'Bağla', value: 'close', class: 'confirm-btn-neutral' }
+        ]
+    });
+}
+
+// Delete Action
+async function deleteAction(action, type, index) {
+    const area = areasData.find(a => a.name === currentArea);
+    if (!area) return;
+    
+    const result = await showConfirm({
+        title: '🗑️ Əməli Sil',
+        message: `"<strong>${action}</strong>" əməlini silmək istədiyinizə əminsiniz?<br><br><span style="color: #e74c3c;">⚠️ Bu əməliyyat geri alına bilməz!</span>`,
+        buttons: [
+            { text: 'Xeyr', value: 'no', class: 'confirm-btn-no' },
+            { text: 'Bəli, sil', value: 'yes', class: 'confirm-btn-yes' }
+        ]
+    });
+    
+    if (result.button !== 'yes') return;
+    
+    if (type === 'light') {
+        area.lightActions.splice(index, 1);
+    } else {
+        area.darkActions.splice(index, 1);
+    }
+    
+    renderActions('light', area.lightActions);
+    renderActions('dark', area.darkActions);
+}
+
 // Manual Adjust
 async function manualAdjust(areaName) {
     const area = areasData.find(a => a.name === areaName);
@@ -1182,10 +1280,47 @@ function renderMasterHistory(allHistory) {
     });
 }
 
+// Reset All Areas (from button)
+async function resetAllAreasFromButton() {
+    const result = await showConfirm({
+        title: '🗑️ HAMISI SİL',
+        subtitle: 'Bütün sahələri sıfırla',
+        message: `<strong style="color: #e74c3c; font-size: 18px;">⚠️ DİQQƏT!</strong><br><br>BÜTÜN sahələri və tarixçəni silmək istədiyinizə əminsiniz?<br><br>Bu əməliyyat geri alına bilməz!`,
+        buttons: [
+            { text: 'Xeyr, geri qayıt', value: 'no', class: 'confirm-btn-no' },
+            { text: 'Bəli, hamısını sil', value: 'yes', class: 'confirm-btn-yes' }
+        ]
+    });
+
+    if (result.button !== 'yes') return;
+
+    try {
+        await resetAllAreasInBackend();
+        await loadAreasFromBackend();
+        renderBuckets();
+        
+        await showConfirm({
+            title: '✅ Uğurlu',
+            message: 'Bütün sahələr sıfırlandı!',
+            buttons: [
+                { text: 'Bağla', value: 'close', class: 'confirm-btn-neutral' }
+            ]
+        });
+    } catch (error) {
+        await showConfirm({
+            title: '❌ Xəta',
+            message: 'Sıfırlama əməliyyatında xəta baş verdi.',
+            buttons: [
+                { text: 'Bağla', value: 'close', class: 'confirm-btn-neutral' }
+            ]
+        });
+    }
+}
+
 // Reset All Areas
 async function resetAllAreas() {
     const result = await showConfirm({
-        title: '🗑️ HAMISI SIL',
+        title: '🗑️ HAMISI SİL',
         subtitle: 'Bütün sahələri sıfırla',
         message: `<strong style="color: #e74c3c; font-size: 18px;">⚠️ DİQQƏT!</strong><br><br>BÜTÜN sahələri və tarixçəni silmək istədiyinizə əminsiniz?<br><br>Bu əməliyyat geri alına bilməz!`,
         buttons: [
