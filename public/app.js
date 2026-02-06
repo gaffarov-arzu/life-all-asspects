@@ -1,5 +1,5 @@
 // API BASE URL
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'http://44.212.246.54:3000/api';
 
 // Global Variables
 let areasData = [];
